@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive Newton-Raphson root finder with iteration table and graph." />
+  <title>Newton-Raphson | Numerical Methods Lab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Numerical Methods Lab home">
+        <span class="brand-mark">∑</span>
+        <span><strong>NUMERICAL</strong><small>METHODS LAB</small></span>
+      </a>
+      <div class="topbar-right"><span class="status-dot"></span> Interactive solver <span class="version">v1.0</span></div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow"><span></span> NUMERICAL ANALYSIS / ROOT FINDING</div>
+        <h1>Newton–Raphson <em>Method</em></h1>
+        <p class="hero-copy">Find a root of a nonlinear function through successive approximations. Enter your function and initial guess, then follow every iteration visually.</p>
+        <div class="formula-card">
+          <div class="formula-label">ITERATION FORMULA</div>
+          <div class="formula">x<sub>i+1</sub> = x<sub>i</sub> − <span class="fraction"><span>f(x<sub>i</sub>)</span><span>f′(x<sub>i</sub>)</span></span></div>
+          <div class="formula-note">Starting from an initial guess x<sub>0</sub>, repeat until the result converges.</div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel controls-panel">
+          <div class="panel-heading"><div><span class="step">01</span><h2>Define your function</h2></div><span class="panel-icon">ƒx</span></div>
+          <form id="solverForm">
+            <label for="functionInput">NONLINEAR FUNCTION <span class="hint">f(x)</span></label>
+            <div class="input-wrap function-wrap"><span class="input-prefix">f(x) =</span><input id="functionInput" type="text" value="x^3 - x - 2" autocomplete="off" spellcheck="false" /></div>
+            <div class="examples"><span>Try:</span><button type="button" class="example" data-function="x^3 - x - 2">x³ − x − 2</button><button type="button" class="example" data-function="cos(x) - x">cos(x) − x</button><button type="button" class="example" data-function="x^2 - 4">x² − 4</button></div>
+
+            <label for="initialGuess">INITIAL GUESS <span class="hint">x₀</span></label>
+            <div class="input-wrap"><input id="initialGuess" type="number" value="1.5" step="any" /></div>
+
+            <div class="two-fields">
+              <div><label for="tolerance">TOLERANCE <span class="hint">ε</span></label><div class="input-wrap"><input id="tolerance" type="number" value="0.000001" min="0.0000000001" step="any" /></div></div>
+              <div><label for="maxIterations">MAX ITERATIONS</label><div class="input-wrap"><input id="maxIterations" type="number" value="50" min="1" max="200" step="1" /></div></div>
+            </div>
+            <div class="help-note"><span>ⓘ</span> Derivative is approximated numerically using the central difference formula.</div>
+            <button class="primary-btn" type="submit"><span>Run Newton–Raphson</span><b>→</b></button>
+            <button class="reset-btn" type="button" id="resetBtn">↺ &nbsp; Reset to example</button>
+          </form>
+          <div class="syntax-box">
+            <strong>Supported syntax</strong>
+            <p>Operators: <code>+ − * / ^</code> &nbsp; Parentheses: <code>( )</code></p>
+            <p>Functions: <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>exp</code>, <code>log</code>, <code>sqrt</code>, <code>abs</code></p>
+            <p>Constants: <code>pi</code>, <code>e</code> &nbsp; Trigonometric angles are in radians.</p>
+          </div>
+        </aside>
+
+        <div class="results-column">
+          <section class="panel result-panel">
+            <div class="panel-heading"><div><span class="step">02</span><h2>Solution overview</h2></div><span id="resultBadge" class="badge neutral">WAITING FOR INPUT</span></div>
+            <div class="metrics">
+              <div class="metric"><span class="metric-label">APPROXIMATE ROOT</span><strong id="rootValue">—</strong><small id="rootSub">Run the solver to begin</small></div>
+              <div class="metric"><span class="metric-label">ITERATIONS</span><strong id="iterationValue">—</strong><small>Number of substitutions</small></div>
+              <div class="metric"><span class="metric-label">FUNCTION VALUE</span><strong id="functionValue">—</strong><small>|f(root)|</small></div>
+            </div>
+            <div id="message" class="message neutral-message">Enter a function and an initial guess, then click <b>Run Newton–Raphson</b>.</div>
+          </section>
+
+          <section class="panel graph-panel">
+            <div class="panel-heading graph-heading"><div><span class="step">03</span><h2>Function visualization</h2></div><div class="legend"><span><i class="legend-line"></i> f(x)</span><span><i class="legend-dot"></i> Iteration points</span><span><i class="legend-root"></i> x-axis</span></div></div>
+            <div class="chart-wrap"><canvas id="plot" aria-label="Graph of the function and Newton-Raphson iteration points"></canvas><div id="graphEmpty" class="graph-empty">Your function graph and iteration points will appear here.</div></div>
+            <div class="graph-footer"><span id="graphFunction">f(x) = x³ − x − 2</span><span>Hover over the graph to inspect coordinates</span></div>
+          </section>
+
+          <section class="panel table-panel">
+            <div class="panel-heading"><div><span class="step">04</span><h2>Iteration details</h2></div><span id="rowCount" class="row-count">0 STEPS</span></div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Iteration</th><th>x<sub>i</sub></th><th>f(x<sub>i</sub>)</th><th>f′(x<sub>i</sub>)</th><th>x<sub>i+1</sub></th><th>Error |Δx|</th></tr></thead>
+                <tbody id="iterationBody"><tr class="empty-row"><td colspan="6">Iteration results will be listed here after you run the method.</td></tr></tbody>
+              </table>
+            </div>
+            <div class="table-foot">Convergence is reached when |x<sub>i+1</sub> − x<sub>i</sub>| ≤ ε or |f(x<sub>i+1</sub>)| ≤ ε.</div>
+          </section>
+        </div>
+      </section>
+      <footer><span>NUMERICAL METHODS LAB</span><span>Newton–Raphson Root Finder · Built with HTML, CSS & JavaScript</span></footer>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
